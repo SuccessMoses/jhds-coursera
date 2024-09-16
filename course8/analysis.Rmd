@@ -1,0 +1,76 @@
+---
+title: "Building a machine learning model to Human Activity Recognition"
+author: "success"
+date: "2024-09-04"
+output: html_document
+---
+
+## Synopsis
+
+I created an algorithm using machine learning techniques, to classify human activity based on data from accelerometer. The training data includes raw accelerometer data on the belt, forearm, arm, and dumbell of participant. Given the limited data and computation available, popular machine learining techniques like deep learning will not be used. The final model was trained using random forest and achieved accuracy of 98%. By contrast, a model that is randomly guessing should have a accuracy of `r 5*0.5*100`%.
+
+
+### Required Libraries
+
+```{r, message=FALSE, warning=FALSE}
+library(data.table)
+library(randomForest)
+library(dplyr)
+library(caret)
+```
+
+## Reading the data and features selection
+
+```{r, message=FALSE, warning=FALSE}
+data = fread('pml-training.csv', string=TRUE)
+```
+
+## Features Selection
+
+```{r}
+char = '^min|^max|^avg|^var|^stddev|^skewness|^kurtosis|^amplitude'
+bad = grep(char, names(data))
+bad = c(bad, 1:7)
+data = data[, -(..bad)]
+
+nearZeroVar = nearZeroVar(data)
+data = data[, -(..nearZeroVar)]
+data = na.omit(data)
+```
+
+## Features Plot
+
+```{r}
+data_melted = melt(data, id.vars = 'classe')
+subset_data_melted = filter(data_melted, as.numeric(variable) %in% 1:12)
+g = ggplot(subset_data_melted, aes(value))
+
+g + geom_histogram() + facet_wrap(vars(variable))
+```
+
+The features are extremely non-normal, methods like linear discriminant analysis and logistic regression will perform poorly. However, methods like random forest and gradient boosted trees will most likely perform well.
+
+## Training
+
+The classification algorithm will be built using random forest. No KNN Imputation or Principal Component Analysis was done. 
+
+```{r}
+inTrain = createDataPartition(
+  y = data$classe,
+  p=0.5,
+  list = FALSE
+)
+
+# Create partitions of the original data set
+trainData = data[inTrain,] ; testData = data[-inTrain,]
+
+# Using random forest to create classification algorithm
+fit = randomForest(data=trainData, classe~., ntree=100)
+
+pred = predict(fit, testData)
+true = testData$classe
+
+confusionMatrix(pred, true)
+
+```
+
