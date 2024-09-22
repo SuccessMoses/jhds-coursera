@@ -1,0 +1,73 @@
+---
+title: "Statistical Inference assignment"
+author: "success"
+date: "2024-09-01"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r message=FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Overview
+In this article we are going to the exploring the **ToothGrowth** data set in R. The goal is to explore the variables in the data set and see if we can draw any reasonable inference about ToothGrowth in guinea pigs.
+
+### The data
+```{r}
+data("ToothGrowth")
+data = ToothGrowth
+str(data)
+```
+
+The dataset consist of `r nrow(data)` observations in `r length(data)` columns.
+The `r names(data)[2]` variable represent vitamin supplements given to guinea pigs. The length `r names(data)[1]` represents tooth growth and the `r names(data)[3]` represents dosage
+
+### Exploratory Data Analysis
+We expect `r names(data)[1]` to increase with `r names(data)[3]`. Figure below is a box plot of `r names(data)[1]` for each of `r names(data)[3]`.
+```{r}
+data$dose = as.factor(data$dose)
+
+ggplot(data, aes(factor(dose), len)) + 
+  geom_boxplot()
+
+```
+
+Now if we plot, make of similar box plot of `r names(data)[1]` against `r names(data)[2]`, we see that average tooth growth when supplement 1 is given is greater than the average tooth growth when supplement 2 is given.
+
+```{r}
+ggplot(data, aes(factor(supp), len)) + 
+  geom_boxplot()
+
+```
+
+
+### Stastical Inference
+Of course, this could be due to random chance so I am going to formally test the hypothesis that their averages are the same using a Welch Two Sample t-test at a type one error rate of `r 0.05`
+
+```{r}
+ojdata <- dplyr::filter(data, supp=='OJ')
+vcdata <- dplyr::filter(data, supp=='VC')
+test1 <- t.test(ojdata$len, vcdata$len, paired = TRUE)
+test1
+```
+
+In this case, I made the **assumption that the observations in the different groups are paired**. The p-value of the Welch test is `r test1$p.value`. Hence we reject the null hypothesis at a 95% significance. **The average of the group that took the 'OJ' supplement is greater than the mean of the group that took the 'VC' supplement**.
+
+Similarly, we can also run a Welch t-test for the significance of the observed difference in mean. Here we also make the **assumption that observations are paired**.
+
+```{r, results='hold'}
+group1 <- dplyr::filter(data, dose==0.5)
+group2 <- dplyr::filter(data, dose==1)
+group3 <- dplyr::filter(data, dose==2)
+
+test2 <- t.test(group1$len, group2$len, paired=TRUE)
+test3 <- t.test(group2$len, group3$len, paired=TRUE)
+
+test2$p.value < 0.05
+test3$p.value < 0.05
+```
+
+The p-value of both test are below the threshold, hence we **reject** the null hypothesis that the mean are equal and conclude that **dosage increases tooth growth**

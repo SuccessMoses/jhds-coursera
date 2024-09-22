@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Assignment</title>
+<style type="text/css">
+/**
+ * Prism.s theme ported from highlight.js's xcode style
+ */
+pre code {
+  padding: 1em;
+}
+.token.comment {
+  color: #007400;
+}
+.token.punctuation {
+  color: #999;
+}
+.token.tag,
+.token.selector {
+  color: #aa0d91;
+}
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol {
+  color: #1c00cf;
+}
+.token.property,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin {
+  color: #c41a16;
+}
+.token.inserted {
+  background-color: #ccffd8;
+}
+.token.deleted {
+  background-color: #ffebe9;
+}
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #9a6e3a;
+}
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #836c28;
+}
+.token.function,
+.token.class-name {
+  color: #DD4A68;
+}
+.token.regex,
+.token.important,
+.token.variable {
+  color: #5c2699;
+}
+.token.important,
+.token.bold {
+  font-weight: bold;
+}
+.token.italic {
+  font-style: italic;
+}
+</style>
+<style type="text/css">
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: auto;
+  padding: 1em;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+body, .footnotes, code { font-size: .9em; }
+li li { font-size: .95em; }
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+pre, img { max-width: 100%; }
+pre, pre:hover {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+pre code {
+  display: block;
+  overflow-x: auto;
+}
+code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
+:not(pre) > code, code[class] { background-color: #F8F8F8; }
+code.language-undefined, pre > code:not([class]) {
+  background-color: inherit;
+  border: 1px solid #eee;
+}
+table {
+  margin: auto;
+  border-top: 1px solid #666;
+}
+table thead th { border-bottom: 1px solid #ddd; }
+th, td { padding: 5px; }
+thead, tfoot, tr:nth-child(even) { background: #eee; }
+blockquote {
+  color: #666;
+  margin: 0;
+  padding-left: 1em;
+  border-left: 0.5em solid #eee;
+}
+hr, .footnotes::before { border: 1px dashed #ddd; }
+.frontmatter { text-align: center; }
+#TOC .numbered li { list-style: none; }
+#TOC .numbered { padding-left: 0; }
+#TOC .numbered ul { padding-left: 1em; }
+table, .body h2 { border-bottom: 1px solid #666; }
+.body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
+.footnote-ref a::before { content: "["; }
+.footnote-ref a::after { content: "]"; }
+section.footnotes::before {
+  content: "";
+  display: block;
+  max-width: 20em;
+}
+
+@media print {
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+  tr, img { page-break-inside: avoid; }
+}
+@media only screen and (min-width: 992px) {
+  pre { white-space: pre; }
+}
+</style>
+</head>
+<body>
+<div class="frontmatter">
+<div class="title"><h1>Assignment</h1></div>
+<div class="author"><h2>success</h2></div>
+<div class="date"><h3>2024-09-02</h3></div>
+</div>
+<div class="body">
+<h3 id="summary">Summary</h3>
+<p>In this document we are going to be exploring the linear relationship between transmission type and mile per gallon. Using Exploratory Data Analysis, I selected variables in the original data set to include in the model. By plotting residual against residual values, I discovered that there is non linear relationship between outcome and predictor, so I included quadratic terms. <strong>The coefficient of the dummy variable for automatic transmission(am) is the increase in expected Mile per Gallon when the vehicle has a manual transmission.</strong></p>
+<p>The confidence interval for the coefficient contained zero, so the conclusion is that <strong>the MPG difference between automatic transmission vehicles and manual transmission vehicles is zero</strong>.</p>
+<pre><code class="language-r">library(ggplot2)
+names(mtcars)
+</code></pre>
+<pre><code>##  [1] &quot;mpg&quot;  &quot;cyl&quot;  &quot;disp&quot; &quot;hp&quot;   &quot;drat&quot; &quot;wt&quot;   &quot;qsec&quot; &quot;vs&quot;   &quot;am&quot;   &quot;gear&quot; &quot;carb&quot;
+</code></pre>
+<p>There are a lot of variables in the dataset, but I am going to exploring the linear relationship between <strong>mpg</strong> and <strong>am</strong>. It is possible that the effect of <strong>am</strong> on the outcome is mixed with the effect of other variables making it difficult to determine the true relationship between the variable of interest. Hence, I need to account for other variables.</p>
+<pre><code class="language-r">model1 &lt;- lm(mpg~., mtcars)
+print('Confidence Interval for the coeffient of the Transmission dummy variable:')
+</code></pre>
+<pre><code>## [1] &quot;Confidence Interval for the coeffient of the Transmission dummy variable:&quot;
+</code></pre>
+<pre><code class="language-r">confint(model1)['amManual',]
+</code></pre>
+<pre><code>##     2.5 %    97.5 % 
+## -1.756812  6.797266
+</code></pre>
+<p>The coefficient of the dummy variable <strong>quantifies the difference in miles per gallon for the automatic versus the manual transmission</strong>. Since the confidence interval contains 0, we cannot the reject the null hypothesis that the difference in outcome is insignificant. Because I included so many variables in the linear regression, the model was not able to ‘pick up’ any linear relationship between mpg and the dummy variable for am.</p>
+<h3 id="exploratory-data-analysis">Exploratory Data Analysis</h3>
+<pre><code class="language-r">coef = sapply(names(mtcars), 
+       function(name){
+         cor(as.numeric(mtcars[,name]), as.numeric(mtcars[,'am']))
+       }
+       )
+
+names(coef[abs(coef) &gt; 0.5])
+</code></pre>
+<pre><code>## [1] &quot;mpg&quot;  &quot;cyl&quot;  &quot;disp&quot; &quot;drat&quot; &quot;wt&quot;   &quot;am&quot;   &quot;gear&quot;
+</code></pre>
+<p>This code loops through all the variables in the mtcars data and prints out names of variables that are significantly correlated. If I increase the threshold to 0.7, fewer variables make the cut. We are going to <strong>fit different models using only variables that are correlated with ‘am’ and use Analysis of Variance(ANOVA) to select the best model</strong>.</p>
+<pre><code class="language-r">model2 = lm(mpg~am + wt + drat + disp + gear + cyl, mtcars)
+model3 = lm(mpg~drat+wt+am+gear, mtcars)
+anova(model3, model2, model1)
+</code></pre>
+<pre><code>## Analysis of Variance Table
+## 
+## Model 1: mpg ~ drat + wt + am + gear
+## Model 2: mpg ~ am + wt + drat + disp + gear + cyl
+## Model 3: mpg ~ cyl + disp + hp + drat + wt + qsec + vs + am + gear + carb
+##   Res.Df    RSS Df Sum of Sq      F  Pr(&gt;F)  
+## 1     27 260.41                              
+## 2     25 182.10  2    78.305 5.5745 0.01143 *
+## 3     21 147.49  4    34.606 1.2318 0.32759  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+</code></pre>
+<p>Model 2 appears to be significant with a p-value of 0.01143, while model 1 is not significant at all. So I am going to select model 2.</p>
+<pre><code class="language-r">fit = predict(model2)
+res = resid(model2)
+ggplot(mapping=aes(fit, res)) + 
+  geom_point() + geom_smooth(span=1, se=FALSE) + geom_hline(yintercept = 0)
+</code></pre>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAJAAAACQCAMAAADQmBKKAAAAw1BMVEUAAAAAAGYAOpAAZrYzMzMzZv86OmY6OpA6kNtNTU1NTW5NTY5NbqtNjshmAABmADpmAGZmOgBmOpBmkJBmtttmtv9uTU1uTY5uq+SOTU2OTY6ObquOjk2OjsiOq+SOyP+QOgCQOjqQOmaQ2/+rbk2rbo6r5P+2ZgC225C2/7a2///Ijk3Ijm7Ijo7IyP/I///bkDrb25Db/7bb///kq27kq47k///r6+v/tmb/yI7/25D/5Kv//7b//8j//9v//+T///9jqmaJAAAACXBIWXMAAAsSAAALEgHS3X78AAAEhUlEQVR4nO2ciVLbMBCGl4JK0wN6pYVegVJC26RNS4EQIOD3f6rK8iF5tZItIlsC/A8DyGvJn3dX1uFMIIlMEBoAC0IDYEFoACygD998Gzw/6xSkENCHT0bpT6p5MlfUZsEK9OuT8NDGxoZvD9QJ6MOTUbLYEf/F4qFZR0AAzYB4Ai26yCGAksgOJHtZW0ApiAOQVEtAgsQhZJ0BKZawQHnIIgLSCz1QD/RQgboW1J0QnYd6oLsJJOcIcQDJWUsP5BoyZX7VKZCpPXUG2gOR7XUWMr7qeNEEyGfBCsRXidNxTEDcR4ezmNb2yXI3rpAlSWSbDSex7X60v7Z3BJJ6aEC+NhtEOx6AfG3HZO3EByT9HUfIytuzu0vFbjepCyBi84k4ywLEmB+gpHTQqkBzT0DymiuFjDkBtS/G1BLUnd76k5plDtI9dL5+tQXDzoFSnuwxi4Cu9w/+rF9s/qOAiptoASjjEUmIgK5e/jx6wn8ZgAq/+geaG4Cuv/7YPjB4KEdiTmNCo9Oy+yRDlpzDo+PtA2MOZUh2IDkuqQ8fS50yFSggg5QmmAwdeSVlC6AZELMC8T72dt/sIQLJAtQoZBUePYf2hkdDYw7J9piEsoTM6BSlUOUhe9nQ0Muq7THnDCcLWkZSHjp/VOuhsjWGPO4IlNa2Tz94DsFa4aD6tT1j9oSyFygX6yFT/MIXZZPad67AbAklC/r0I6/kAHQ6FgtFvraHzoRDdqQOrNOxsnI1dOGyl+PoGSaWpaU81e6hrbRikUSnCpDxIacaqlDWkJmGauyhitQcagQkn1B6clQK2RlZRQegSi8zPnXpbJX9Wb8sK3iy8bTSgBVIyqU/i/blGFxctkLDFEvVxb6A8jaVsay4bhWoMl1Q1k+3BJKXRUBFo4nW7ZSQmbLr9iFTLmsGUgdXpsvkYs9ABt8B6DA+gcwhMxXct9TdgGra4w9++e8tJyb+gLKhSCmgEaZrILACVbq2D6B6qWO1KGpWp9bqTmgUMtutdx8yX4UeqDMg4zM8EBCeZIQF4ixRAQmYmEKmPIbjAOpfk8cD1L8mt3poIl4Ax/VWun9Nfq9H+7sNVDzaiQE5CFAx+GV/eyCiEFvI4kvqewjUhmyLa4spUwtOKSe+sYQsOqCy70cDRBfuKlBinlW3YumBVgfqWBAaAAtCA2BBaAAssJv5+kzuOxCWp2N8fLk7eDYj6xQWvY44Pa9jB5oMRsrrV2xZfqZBT3bIOsJC1hFbG3kdK9DyN29EvqDGlst39NcWLEZkHWEx1Lk5nOV1rEDirqZ049li+/ILcRsfzwx1uIWuk25tTJsCGe42+wYFwrL8MDPUSS10nfRgYw/ROZR/q8NCs1y+nyV0HWEh64irNMmh+l6mWyaDwWDH0SK2Nhr1sgCC0ABYEBoAC0IDYEFoACwIDYAF3lu83oM3m8evtY/7NRT4ZBESH84kPqHZUOCTJdXVFqx9f/wK9E9ENhN4pUnFnXOx+TceD/VAtYoT6HgrnqReURAaAAtCA2BBaAAsCA2ABaEBsCA0ANZ/VVgk/mY72RIAAAAASUVORK5CYII=" alt="plot of chunk unnamed-chunk-6" /></p>
+<p>This is a plot of residual vs fitted value below indicates that there is significant bias in the model. This indicates a non linear relationship between outcome and predictors, hence I need to include quadratic variables</p>
+<h3 id="final-model">Final Model</h3>
+<pre><code class="language-r">model4 = lm(
+  mpg~am + wt + drat + disp + cyl + gear + I(wt^2) + I(drat^2) + I(disp^2),
+  mtcars
+    )
+
+confint(model4)['amManual',]
+</code></pre>
+<pre><code>##     2.5 %    97.5 % 
+## -5.794009  2.987719
+</code></pre>
+<p>The confidence interval for the coefficient of the dummy variable contains zero, hence we conclude that <strong>the MPG difference between automatic transmission and manual transmission is 0</strong>.</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+</body>
+</html>

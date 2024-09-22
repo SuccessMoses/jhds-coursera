@@ -1,0 +1,81 @@
+---
+title: "Assignment"
+author: "success"
+date: "2024-09-02"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+### Summary
+
+In this document we are going to be exploring the linear relationship between transmission type and mile per gallon. Using Exploratory Data Analysis, I selected variables in the original data set to include in the model. By plotting residual against residual values, I discovered that there is non linear relationship between outcome and predictor, so I included quadratic terms. **The coefficient of the dummy variable for automatic transmission(am) is the increase in expected Mile per Gallon when the vehicle has a manual transmission.**
+
+The confidence interval for the coefficient contained zero, so the conclusion is that **the MPG difference between automatic transmission vehicles and manual transmission vehicles is zero**.
+
+```{r, message=FALSE}
+library(ggplot2)
+names(mtcars)
+```
+
+There are a lot of variables in the dataset, but I am going to exploring the linear relationship between **mpg** and **am**. It is possible that the effect of **am** on the outcome is mixed with the effect of other variables making it difficult to determine the true relationship between the variable of interest. Hence, I need to account for other variables.
+
+```{r, echo=FALSE}
+# Convert 'am' to a factor variable
+mtcars$am <- factor(mtcars$am, labels = c('Automatic', 'Manual'))
+mtcars$carb <- mtcars$carb
+mtcars$vs <- mtcars$vs
+mtcars$gear <- mtcars$gear
+mtcars$cyl <- mtcars$cyl 
+```
+
+```{r}
+model1 <- lm(mpg~., mtcars)
+print('Confidence Interval for the coeffient of the Transmission dummy variable:')
+confint(model1)['amManual',]
+```
+
+The coefficient of the dummy variable **quantifies the difference in miles per gallon for the automatic versus the manual transmission**. Since the confidence interval contains 0, we cannot the reject the null hypothesis that the difference in outcome is insignificant. Because I included so many variables in the linear regression, the model was not able to 'pick up' any linear relationship between mpg and the dummy variable for am.
+
+### Exploratory Data Analysis
+
+```{r}
+coef = sapply(names(mtcars), 
+       function(name){
+         cor(as.numeric(mtcars[,name]), as.numeric(mtcars[,'am']))
+       }
+       )
+
+names(coef[abs(coef) > 0.5])
+```
+
+This code loops through all the variables in the mtcars data and prints out names of variables that are significantly correlated. If I increase the threshold to 0.7, fewer variables make the cut. We are going to **fit different models using only variables that are correlated with 'am' and use Analysis of Variance(ANOVA) to select the best model**.
+
+```{r}
+model2 = lm(mpg~am + wt + drat + disp + gear + cyl, mtcars)
+model3 = lm(mpg~drat+wt+am+gear, mtcars)
+anova(model3, model2, model1)
+```
+
+Model 2 appears to be significant with a p-value of `r anova(model3, model2, model1)$'Pr(>F)'[2]`, while model 1 is not significant at all. So I am going to select model 2.
+
+```{r, fig.height=2, fig.width=2, message=FALSE}
+fit = predict(model2)
+res = resid(model2)
+ggplot(mapping=aes(fit, res)) + 
+  geom_point() + geom_smooth(span=1, se=FALSE) + geom_hline(yintercept = 0)
+```
+
+This is a plot of residual vs fitted value below indicates that there is significant bias in the model. This indicates a non linear relationship between outcome and predictors, hence I need to include quadratic variables 
+
+### Final Model
+```{r}
+model4 = lm(
+  mpg~am + wt + drat + disp + cyl + gear + I(wt^2) + I(drat^2) + I(disp^2),
+  mtcars
+    )
+
+confint(model4)['amManual',]
+```
+
+The confidence interval for the coefficient of the dummy variable contains zero, hence we conclude that **the MPG difference between automatic transmission and manual transmission is 0**.
