@@ -1,0 +1,20 @@
+---
+title: "Map of the World, with a Pop-up indicating the location of the city Lagos on the map."
+author: "PlayerUnknown"
+date: "2024-09-05"
+output: html_document
+---
+
+```{r, echo=FALSE}
+library(dplyr)
+library(leaflet)
+```
+
+```{r}
+lng = 6.4541
+lat = 3.3947
+
+leaflet() %>%
+  addTiles() %>% setView(lng, lat, 3) %>%
+  addPopups(lng, lat, popup = 'Lagos')
+```

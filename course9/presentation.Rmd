@@ -1,0 +1,39 @@
+---
+title: "Web-based Classifier"
+author: "success"
+date: "2024-09-07"
+output: slidy_presentation
+---
+
+### Overview
+
+This is a simple web based app which is a data product that is a by product of a simple machine learning model is created using random forest. The dataset is the popular iris data set in R.
+
+
+```{r}
+head(iris)
+```
+
+### The model
+
+The model was trained using the iris data set with `r nrow(iris)` rows. 
+
+```{r, message=FALSE, warning=FALSE}
+library(caret)
+library(randomForest)
+
+fit = train(Species~., data=iris, method='rf')
+fit
+```
+
+### Evaluation
+
+The model was evaluated using cross-validation leave-one-out estimate of the out of sample error. The accuracy of the model was `r mean(fit$results[,'Accuracy'])`, which is not that suprising given that random forest was used.
+
+
+### The product
+
+The app is hosted on [Project9](https://muqwnv-rebel-ai.shinyapps.io/Project9/)
+
+
+**Documentation:** [docs](https://muqwnv-rebel-ai.shinyapps.io/Project9/docs.html)

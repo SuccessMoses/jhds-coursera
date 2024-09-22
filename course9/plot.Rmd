@@ -1,0 +1,47 @@
+---
+title: "Plot of movie ratings against budget to see if there is any linear relationship"
+author: "success(syko2021gmail.com)"
+date: "2024-09-05"
+output: slidy_presentation
+---
+
+# Overview
+In this slide I demonstrate that movies with better ratings do not generally have higher budgets
+
+# Libraries and Dataset
+Here are the libraries and dataset I used
+
+```{r, message=FALSE, warning=FALSE, results='hold'}
+library(ggplot2movies)
+library(ggplot2)
+library(dplyr)
+library(plotly)
+
+data("movies")
+names(movies)
+```
+
+# Data cleaning
+
+```{r}
+movies = filter(movies, !is.na(budget) & !is.na(rating))
+```
+
+# Plot
+Here I make a scatter plot of movie ratings against budget and added a fitted model. The line is exactly horizontal, which suggest that there is no relationship, at least without further analysis.
+
+```{r, echo=FALSE}
+g = ggplot(movies, aes(rating,budget)) +
+  geom_point() + geom_smooth(method='lm')
+
+ggplotly(g)
+```
+
+# The code I used for the plot
+
+```{r, eval=FALSE}
+g = ggplot(movies, aes(rating,budget)) +
+  geom_point() + geom_smooth(method='lm')
+
+ggplotly(g)
+```
